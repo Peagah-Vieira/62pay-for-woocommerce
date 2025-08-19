@@ -21,7 +21,7 @@ class Pix extends Base
     /** -------------------------
      *  Constants / Meta keys
      *  ------------------------- */
-    private const META_DOCUMENT_NUMBER = 'wc_62pay_document_number';
+    private const META_DOCUMENT_NUMBER = '_wc_62pay_document_number';
 
     private const PAYMENT_METHOD_CODE = 'PIX';
 
@@ -119,18 +119,18 @@ class Pix extends Base
             return true;
         }
 
-        $raw = isset($_POST['wc_62pay_document_number'])
-            ? wc_clean(wp_unslash($_POST['wc_62pay_document_number']))
+        $raw = isset($_POST['_wc_62pay_document_number'])
+            ? wc_clean(wp_unslash($_POST['_wc_62pay_document_number']))
             : '';
 
         $doc = $this->normalize_and_validate_document($raw);
+
         if ($doc === '') {
             wc_add_notice(__('Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.', 'wc-62pay'), 'error');
             return false;
         }
 
-        // Disponibiliza para process_payment()
-        $_POST['wc_62pay_document_number'] = $doc;
+        $_POST['_wc_62pay_document_number'] = $doc;
         return true;
     }
 
@@ -142,7 +142,7 @@ class Pix extends Base
         parent::payment_fields();
 
         echo '<div class="form-row form-row-wide">';
-        woocommerce_form_field('wc_62pay_document_number', [
+        woocommerce_form_field('_wc_62pay_document_number', [
             'type' => 'text',
             'label' => __('CPF ou CNPJ do pagador', 'wc-62pay'),
             'placeholder' => __('Somente números', 'wc-62pay'),
@@ -162,8 +162,8 @@ class Pix extends Base
      */
     private function resolveDocumentNumberFromRequestOrMeta(WC_Order $order): string
     {
-        $doc = isset($_POST['wc_62pay_document_number'])
-            ? wc_clean(wp_unslash($_POST['wc_62pay_document_number']))
+        $doc = isset($_POST['_wc_62pay_document_number'])
+            ? wc_clean(wp_unslash($_POST['_wc_62pay_document_number']))
             : '';
 
         $doc = $this->normalize_and_validate_document($doc);

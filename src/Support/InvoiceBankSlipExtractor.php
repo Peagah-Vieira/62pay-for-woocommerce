@@ -20,7 +20,6 @@ final class InvoiceBankSlipExtractor
         }
 
         foreach ($payments as $payment) {
-            // detectar método
             $method = null;
             if (is_object($payment) && method_exists($payment, 'paymentMethod')) {
                 $method = $payment->paymentMethod();

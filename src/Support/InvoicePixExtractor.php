@@ -19,9 +19,7 @@ final class InvoicePixExtractor
             return null;
         }
 
-        // Pega o primeiro pagamento que seja PIX (se houver mais de um método na mesma invoice).
         foreach ($payments as $payment) {
-            // Tenta usar métodos tipados do SDK:
             $method = null;
             if (is_object($payment) && method_exists($payment, 'paymentMethod')) {
                 $method = $payment->paymentMethod();
@@ -33,14 +31,11 @@ final class InvoicePixExtractor
                 continue;
             }
 
-            // ID
             $paymentId = self::get($payment, 'id');
 
-            // Status / Amount
             $status = self::get($payment, 'status');
             $amount = self::getInt($payment, 'amount');
 
-            // Payable
             $payable = self::getPayable($payment);
 
             $qrBase64 = self::get($payable, 'qr_code_base64');

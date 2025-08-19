@@ -50,7 +50,6 @@ final class InvoiceBankSlipPersister
             update_post_meta($orderId, self::META_BANK_SLIP_URL, (string)$bankSlipData['bank_slip_url']);
         }
 
-        // (Opcional) baixar o PDF remoto e servir localmente
         if ($savePdf && !empty($bankSlipData['bank_slip_url'])) {
             $pdfUrl = self::downloadPdf((string)$bankSlipData['bank_slip_url'], $orderId);
             if ($pdfUrl) {
@@ -62,11 +61,12 @@ final class InvoiceBankSlipPersister
     }
 
     /**
-     * Baixa o PDF remoto e salva em uploads/62pay/boleto-{ORDERID}.pdf
+     * @param string $remoteUrl
+     * @param int $orderId
+     * @return string|null
      */
     private static function downloadPdf(string $remoteUrl, int $orderId): ?string
     {
-        // Evita bloquear em ambientes sem allow_url_fopen
         $response = wp_remote_get($remoteUrl, [
             'timeout' => 20,
             'headers' => [
@@ -114,9 +114,6 @@ final class InvoiceBankSlipPersister
             return null;
         }
 
-        // Ajusta o esquema (http/https) conforme a página
-        $finalUrl = set_url_scheme($url . $filename, is_ssl() ? 'https' : 'http');
-
-        return $finalUrl;
+        return set_url_scheme($url . $filename, is_ssl() ? 'https' : 'http');
     }
 }

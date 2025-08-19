@@ -21,7 +21,7 @@ class CreditCard extends Base
     private const META_MAX_INSTALLMENTS = 'installments';
     private const FIELD_INSTALLMENTS = 'wc_62pay_cc_installments';
     private const PAYMENT_METHOD_CODE = 'CREDIT_CARD';
-    private const META_DOCUMENT_NUMBER = 'wc_62pay_document_number';
+    private const META_DOCUMENT_NUMBER = '_wc_62pay_document_number';
 
     private int $maxInstallments = 1;
 
@@ -81,7 +81,7 @@ class CreditCard extends Base
         $installmentOptions = $this->buildInstallmentOptions($this->maxInstallments);
 
         echo '<div class="form-row form-row-wide">';
-        woocommerce_form_field('wc_62pay_document_number', [
+        woocommerce_form_field('_wc_62pay_document_number', [
             'type' => 'text',
             'label' => __('CPF ou CNPJ do pagador', 'wc-62pay'),
             'placeholder' => __('Somente números', 'wc-62pay'),
@@ -332,8 +332,8 @@ class CreditCard extends Base
      */
     private function resolveDocumentNumberFromRequestOrMeta(WC_Order $order): string
     {
-        $doc = isset($_POST['wc_62pay_document_number'])
-            ? wc_clean(wp_unslash($_POST['wc_62pay_document_number']))
+        $doc = isset($_POST['_wc_62pay_document_number'])
+            ? wc_clean(wp_unslash($_POST['_wc_62pay_document_number']))
             : '';
 
         $doc = $this->normalize_and_validate_document($doc);

@@ -200,6 +200,8 @@ class ComposerStaticInit657ad70fa7d1c61d3fc0ab22ccce5461
         'WC62Pay\\Support\\CustomerCreateMapper' => __DIR__ . '/../..' . '/src/Support/CustomerCreateMapper.php',
         'WC62Pay\\Support\\CustomerResolver' => __DIR__ . '/../..' . '/src/Support/CustomerResolver.php',
         'WC62Pay\\Support\\CustomerUpdateMapper' => __DIR__ . '/../..' . '/src/Support/CustomerUpdateMapper.php',
+        'WC62Pay\\Support\\InvoiceBankSlipExtractor' => __DIR__ . '/../..' . '/src/Support/InvoiceBankSlipExtractor.php',
+        'WC62Pay\\Support\\InvoiceBankSlipPersister' => __DIR__ . '/../..' . '/src/Support/InvoiceBankSlipPersister.php',
         'WC62Pay\\Support\\InvoiceCreateMapper' => __DIR__ . '/../..' . '/src/Support/InvoiceCreateMapper.php',
         'WC62Pay\\Support\\InvoicePixExtractor' => __DIR__ . '/../..' . '/src/Support/InvoicePixExtractor.php',
         'WC62Pay\\Support\\InvoicePixPersister' => __DIR__ . '/../..' . '/src/Support/InvoicePixPersister.php',

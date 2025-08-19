@@ -19,8 +19,6 @@ abstract class Base extends \WC_Payment_Gateway
         $this->title = $this->get_option('title');
         $this->description = $this->get_option('description');
         $this->enabled = $this->get_option('enabled');
-        $this->environment = $this->get_option('environment', 'sandbox');
-        $this->api_key = $this->get_option('api_key');
         $this->webhook_secret = $this->get_option('webhook_secret');
         $this->soft_descriptor = $this->get_option('soft_descriptor', get_bloginfo('name'));
 

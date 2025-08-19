@@ -20,7 +20,7 @@ final class CustomerResolver
      */
     private static function resolveOrderDocument(WC_Order $order): string
     {
-        $doc = (string)$order->get_meta('wc_62pay_document_number');
+        $doc = (string)$order->get_meta('_wc_62pay_document_number');
 
         if ($doc === '') $doc = (string)$order->get_meta('_billing_cpf');
         if ($doc === '') $doc = (string)$order->get_meta('_billing_cnpj');

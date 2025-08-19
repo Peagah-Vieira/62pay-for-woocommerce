@@ -6,10 +6,6 @@ namespace WC62Pay\API;
 
 use Sixtytwopay\Sixtytwopay;
 
-/**
- * Entry point da camada de API do plugin.
- * Encapsula o SDK e fornece métodos de acesso/atalho.
- */
 final class Client
 {
     private Sixtytwopay $sdk;
@@ -29,11 +25,9 @@ final class Client
      */
     public static function fromOptions(): self
     {
-        // novas opções globais da SettingsPage:
         $apiKey = (string)get_option('wc_62pay_api_key', '');
         $liveMode = 'yes' === get_option('wc_62pay_live_mode', 'no');
 
-        // (opcional) fallback p/ compatibilidade com antigas:
         if ($apiKey === '') {
             $apiKey = (string)get_option('woocommerce_62pay_api_key', '');
         }

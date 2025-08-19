@@ -139,6 +139,8 @@ return array(
     'WC62Pay\\Support\\CustomerCreateMapper' => $baseDir . '/src/Support/CustomerCreateMapper.php',
     'WC62Pay\\Support\\CustomerResolver' => $baseDir . '/src/Support/CustomerResolver.php',
     'WC62Pay\\Support\\CustomerUpdateMapper' => $baseDir . '/src/Support/CustomerUpdateMapper.php',
+    'WC62Pay\\Support\\InvoiceBankSlipExtractor' => $baseDir . '/src/Support/InvoiceBankSlipExtractor.php',
+    'WC62Pay\\Support\\InvoiceBankSlipPersister' => $baseDir . '/src/Support/InvoiceBankSlipPersister.php',
     'WC62Pay\\Support\\InvoiceCreateMapper' => $baseDir . '/src/Support/InvoiceCreateMapper.php',
     'WC62Pay\\Support\\InvoicePixExtractor' => $baseDir . '/src/Support/InvoicePixExtractor.php',
     'WC62Pay\\Support\\InvoicePixPersister' => $baseDir . '/src/Support/InvoicePixPersister.php',

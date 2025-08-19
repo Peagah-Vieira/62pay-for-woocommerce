@@ -27,7 +27,6 @@ final class InvoicePixPersister
         $orderId = (int)$order->get_id();
         $qrPngUrl = null;
 
-        // Metas básicas
         if (!empty($pixData['payment_id'])) {
             update_post_meta($orderId, self::META_PAYMENT_ID, (string)$pixData['payment_id']);
         }
