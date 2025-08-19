@@ -11,7 +11,6 @@ final class CustomerCreateMapper
 {
     public static function map(WC_Order $order): CustomerCreateInput
     {
-        // HPOS-safe: leia metas do pedido com $order->get_meta()
         $doc = (string)$order->get_meta('_billing_cpf');
         if ($doc === '') {
             $doc = (string)$order->get_meta('_billing_cnpj');
@@ -52,10 +51,6 @@ final class CustomerCreateMapper
             'tags' => ['woocommerce'],
         ];
 
-        // Use o método correto do seu SDK:
-        // - se a classe tiver ->fromArray($data), use fromArray
-        // - se tiver ::make($data) (como nos seus exemplos), mantenha:
         return CustomerCreateInput::make($data);
-        // return CustomerCreateInput::make($data);
     }
 }

@@ -6,26 +6,22 @@ namespace WC62Pay\Support;
 
 use WC_Order;
 
-/**
- * Persiste dados do pagamento BANK_SLIP (Boleto) no pedido
- * e, opcionalmente, baixa o PDF do boleto para uploads/62pay/.
- */
 final class InvoiceBankSlipPersister
 {
-    // Metas (padrão) – seguem a convenção do Pix
     public const META_PAYMENT_ID = '_wc_62pay_bankslip_payment_id';
     public const META_STATUS = '_wc_62pay_bankslip_status';
     public const META_AMOUNT = '_wc_62pay_bankslip_amount';
-    public const META_IDENTIFICATION_FIELD = '_wc_62pay_bankslip_identification_field'; // linha digitável
+    public const META_IDENTIFICATION_FIELD = '_wc_62pay_bankslip_identification_field';
     public const META_BANK_SLIP_NUMBER = '_wc_62pay_bankslip_number';
     public const META_BARCODE = '_wc_62pay_bankslip_barcode';
-    public const META_BANK_SLIP_URL = '_wc_62pay_bankslip_url';    // URL do PDF remoto
-    public const META_BANK_SLIP_PDF_URL = '_wc_62pay_bankslip_pdf_url';// URL local do PDF salvo (se baixado)
+    public const META_BANK_SLIP_URL = '_wc_62pay_bankslip_url';
+    public const META_BANK_SLIP_PDF_URL = '_wc_62pay_bankslip_pdf_url';
 
     /**
-     * Persiste metas do boleto e (se $savePdf === true) baixa o PDF para servir localmente.
-     *
-     * @return array{pdf_url:?string} URL local do PDF salvo (quando $savePdf === true)
+     * @param WC_Order $order
+     * @param array $bankSlipData
+     * @param bool $savePdf
+     * @return null[]|string[]
      */
     public static function persist(WC_Order $order, array $bankSlipData, bool $savePdf = true): array
     {

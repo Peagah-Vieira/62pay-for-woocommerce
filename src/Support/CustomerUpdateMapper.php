@@ -10,7 +10,7 @@ final class CustomerUpdateMapper
 {
     public static function map(WC_Order $order, ?string $forcedDoc = null): CustomerUpdateInput
     {
-        $doc = MapHelpers::onlyDigits($forcedDoc ?: (string)$order->get_meta('_wc_62pay_document_number'));
+        $doc = MapHelpers::onlyDigits($forcedDoc ?: (string)$order->get_meta('wc_62pay_document_number'));
         if ($doc === '') $doc = MapHelpers::onlyDigits((string)$order->get_meta('_billing_cpf'));
         if ($doc === '') $doc = MapHelpers::onlyDigits((string)$order->get_meta('_billing_cnpj'));
 

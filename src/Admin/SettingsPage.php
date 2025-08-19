@@ -1,5 +1,4 @@
 <?php
-// src/Admin/SettingsPage.php
 
 declare(strict_types=1);
 
@@ -22,7 +21,6 @@ final class SettingsPage
 
     public static function register_settings(): void
     {
-        // Opções globais:
         register_setting('wc_62pay_options', 'wc_62pay_api_key', [
             'type' => 'string',
             'sanitize_callback' => 'sanitize_text_field',
@@ -65,7 +63,6 @@ final class SettingsPage
 
     public static function register_menu(): void
     {
-        // Coloca em WooCommerce > 62Pay
         add_submenu_page(
             'woocommerce',
             __('62Pay', 'wc-62pay'),
@@ -79,7 +76,7 @@ final class SettingsPage
 
     public static function field_env(): void
     {
-        $val = get_option('wc_62pay_live_mode', 'no'); // yes = PRODUCTION ; no = SANDBOX
+        $val = get_option('wc_62pay_live_mode', 'no');
         ?>
         <label>
             <select name="wc_62pay_live_mode">

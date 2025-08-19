@@ -6,12 +6,8 @@ namespace WC62Pay\Support;
 
 use WC_Order;
 
-/**
- * Persiste dados do pagamento PIX (payable) no pedido e opcionalmente salva a imagem do QR.
- */
 final class InvoicePixPersister
 {
-    // Metas padrão (ajuste se preferir outros nomes)
     public const META_PAYMENT_ID = '_wc_62pay_pix_payment_id';
     public const META_STATUS = '_wc_62pay_pix_status';
     public const META_AMOUNT = '_wc_62pay_pix_amount';
@@ -21,9 +17,10 @@ final class InvoicePixPersister
     public const META_EXPIRES_AT = '_wc_62pay_pix_expires_at';
 
     /**
-     * Persiste metas e (se $savePng === true) grava o QR como PNG em uploads/62pay/.
-     *
-     * @return array{qr_png_url:?string} Informações úteis de retorno
+     * @param WC_Order $order
+     * @param array $pixData
+     * @param bool $savePng
+     * @return null[]|string[]
      */
     public static function persist(WC_Order $order, array $pixData, bool $savePng = true): array
     {
@@ -47,12 +44,10 @@ final class InvoicePixPersister
             update_post_meta($orderId, self::META_EXPIRES_AT, (string)$pixData['expires_at']);
         }
 
-        // Salva base64 no meta (útil para API/integrações internas)
         if (!empty($pixData['qr_base64'])) {
             update_post_meta($orderId, self::META_QR_BASE64, (string)$pixData['qr_base64']);
         }
 
-        // (Opcional) Salvar PNG em uploads para servir como arquivo estático
         if ($savePng && !empty($pixData['qr_base64'])) {
             $qrPngUrl = self::saveBase64Png($pixData['qr_base64'], $orderId);
             if ($qrPngUrl) {
@@ -64,7 +59,9 @@ final class InvoicePixPersister
     }
 
     /**
-     * Decodifica base64 e salva como PNG em uploads/62pay/pix-ORDERID.png.
+     * @param string $base64
+     * @param int $orderId
+     * @return string|null
      */
     private static function saveBase64Png(string $base64, int $orderId): ?string
     {
@@ -82,7 +79,6 @@ final class InvoicePixPersister
             return null;
         }
 
-        // Remove prefixo data URI se vier (ex.: "data:image/png;base64,....")
         if (strpos($base64, 'base64,') !== false) {
             $base64 = substr($base64, strpos($base64, 'base64,') + 7);
         }

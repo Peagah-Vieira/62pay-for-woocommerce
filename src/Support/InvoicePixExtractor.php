@@ -6,22 +6,11 @@ namespace WC62Pay\Support;
 
 use Sixtytwopay\Responses\InvoiceResponse;
 
-/**
- * Utilitário para extrair o primeiro pagamento PIX da invoice.
- */
 final class InvoicePixExtractor
 {
     /**
-     * Retorna um array normalizado com os dados do primeiro pagamento PIX ou null.
-     *
-     * [
-     *   'payment_id'   => string,
-     *   'status'       => string|null,
-     *   'amount'       => int|null,         // em centavos
-     *   'copy_paste'   => string|null,
-     *   'qr_base64'    => string|null,      // PNG base64
-     *   'expires_at'   => string|null,      // 'Y-m-d H:i:s' (ou ISO)
-     * ]
+     * @param InvoiceResponse $invoice
+     * @return array|null
      */
     public static function firstPixPaymentOrNull(InvoiceResponse $invoice): ?array
     {

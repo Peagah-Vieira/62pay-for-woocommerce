@@ -10,33 +10,35 @@ use Sixtytwopay\Inputs\Customer\CustomerUpdateInput;
 use Sixtytwopay\Responses\CustomerResponse;
 use WC_Order;
 
-// <-- importe o UpdateInput
-
 final class CustomerResolver
 {
     private const META_KEY = '_wc_62pay_customer';
 
-    /** Lê e normaliza CPF/CNPJ do pedido (prioriza o capturado no Pix) */
+    /**
+     * @param WC_Order $order
+     * @return string
+     */
     private static function resolveOrderDocument(WC_Order $order): string
     {
-        // 1) Documento salvo pelo método Pix (campo custom) — ajuste a chave se diferente
-        $doc = (string)$order->get_meta('_wc_62pay_document_number');
+        $doc = (string)$order->get_meta('wc_62pay_document_number');
 
-        // 2) Fallbacks do billing
         if ($doc === '') $doc = (string)$order->get_meta('_billing_cpf');
         if ($doc === '') $doc = (string)$order->get_meta('_billing_cnpj');
 
         return MapHelpers::onlyDigits($doc);
     }
 
-    /** NATURAL (CPF) vs LEGAL (CNPJ) */
     private static function docType(?string $doc): ?string
     {
         $len = strlen((string)$doc);
         return $len === 11 ? 'NATURAL' : ($len === 14 ? 'LEGAL' : null);
     }
 
-    /** Faz update do cliente com document_number (idempotente e tolerante a falhas) */
+    /**
+     * @param string $customerId
+     * @param WC_Order $order
+     * @return void
+     */
     private static function tryUpdateDocument(string $customerId, WC_Order $order): void
     {
         $doc = self::resolveOrderDocument($order);
@@ -47,15 +49,8 @@ final class CustomerResolver
         $payload = CustomerUpdateInput::fromArray([
             'document_number' => $doc,
             'type' => $type,
-            // Se quiser, pode incluir outros campos que deseje “corrigir”
-            // sem sobrescrever valores não informados:
-            // 'name'        => $order->get_formatted_billing_full_name() ?: null,
-            // 'legal_name'  => $order->get_billing_company() ?: $order->get_formatted_billing_full_name() ?: null,
-            // 'email'       => $order->get_billing_email() ?: null,
-            // 'phone'       => $order->get_billing_phone() ?: null,
         ]);
 
-        // Evita request inútil se só tiver 'type' sem documento
         if (!array_key_exists('document_number', $payload->toPayload())) return;
 
         try {
@@ -70,7 +65,12 @@ final class CustomerResolver
         }
     }
 
-    /** Mantém as demais assinaturas / comportamento do seu resolver */
+    /**
+     * @param WC_Order $order
+     * @return string
+     * @throws ApiException
+     * @throws GuzzleException
+     */
     public static function ensureId(WC_Order $order): string
     {
         return self::ensure($order)->id();
@@ -96,13 +96,11 @@ final class CustomerResolver
             $savedId = (string)get_post_meta($order->get_id(), self::META_KEY, true);
         }
 
-        // 2) Se já havia ID salvo, tenta “GET”; se ok, atualiza document_number (update)
         if ($savedId !== '') {
             try {
                 $customer = $service->get($savedId);
                 self::persistIds($order, $customer->id());
 
-                // >>> Atualiza doc se existir no pedido
                 self::tryUpdateDocument($customer->id(), $order);
 
                 return $customer;
@@ -114,7 +112,6 @@ final class CustomerResolver
             }
         }
 
-        // 3) Sem ID válido → cria
         $input = CustomerCreateMapper::map($order);
         $customer = $service->create($input);
 
@@ -124,7 +121,6 @@ final class CustomerResolver
 
         self::persistIds($order, $customer->id());
 
-        // >>> Mesmo após create, garantimos o doc vindo do Pix (caso tenha sido digitado agora)
         self::tryUpdateDocument($customer->id(), $order);
 
         return $customer;

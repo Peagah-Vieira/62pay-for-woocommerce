@@ -7,23 +7,6 @@ namespace WC62Pay\Support;
 use Sixtytwopay\Inputs\Invoice\InvoiceCreateInput;
 use WC_Order;
 
-/**
- * Constrói o InvoiceCreateInput a partir do pedido + opções.
- *
- * Campos configuráveis via $opts:
- *  - payment_method        (string)   REQUIRED: 'PIX' | 'BOLETO' | 'CREDIT_CARD' (ou o que seu backend aceita)
- *  - due_date              (string)   'Y-m-d' (default: hoje)
- *  - description           (string)   default: "Pedido #123 – Nome do Site"
- *  - installments          (int|null) default: 1 (ou null para boleto/pix)
- *  - immutable             (bool|null)
- *  - interest_percent      (int|null)
- *  - fine_type             (string|null)  ex.: 'FIXED' | 'PERCENT'
- *  - fine_value            (int|null)
- *  - discount_type         (string|null)  ex.: 'FIXED' | 'PERCENT'
- *  - discount_value        (int|null)
- *  - discount_deadline     (string|null)  'Y-m-d'
- *  - extra_tags            (string[]|null)
- */
 final class InvoiceCreateMapper
 {
     public static function fromOrder(WC_Order $order, string $customerId, array $opts): InvoiceCreateInput

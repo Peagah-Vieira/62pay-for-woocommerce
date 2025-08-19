@@ -6,23 +6,11 @@ namespace WC62Pay\Support;
 
 use Sixtytwopay\Responses\InvoiceResponse;
 
-/**
- * Utilitário para extrair o primeiro pagamento BANK_SLIP (Boleto) da invoice.
- */
 final class InvoiceBankSlipExtractor
 {
     /**
-     * Retorna um array normalizado com os dados do primeiro pagamento BANK_SLIP ou null.
-     *
-     * [
-     *   'payment_id'            => string,
-     *   'status'                => string|null,
-     *   'amount'                => int|null,         // em centavos
-     *   'identification_field'  => string|null,      // linha digitável
-     *   'bank_slip_number'      => string|null,
-     *   'barcode'               => string|null,
-     *   'bank_slip_url'         => string|null,      // URL do PDF do boleto
-     * ]
+     * @param InvoiceResponse $invoice
+     * @return array|null
      */
     public static function firstBankSlipPaymentOrNull(InvoiceResponse $invoice): ?array
     {
@@ -51,7 +39,7 @@ final class InvoiceBankSlipExtractor
 
             $payable = self::getPayable($payment);
 
-            $identificationField = self::get($payable, 'identification_field'); // linha digitável
+            $identificationField = self::get($payable, 'identification_field');
             $bankSlipNumber = self::get($payable, 'bank_slip_number');
             $barcode = self::get($payable, 'barcode');
             $bankSlipUrl = self::get($payable, 'bank_slip_url');
