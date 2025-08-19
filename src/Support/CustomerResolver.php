@@ -20,7 +20,7 @@ final class CustomerResolver
     private static function resolveOrderDocument(WC_Order $order): string
     {
         // 1) Documento salvo pelo método Pix (campo custom) — ajuste a chave se diferente
-        $doc = (string)$order->get_meta('_wc_62pay_pix_document_number');
+        $doc = (string)$order->get_meta('_wc_62pay_document_number');
 
         // 2) Fallbacks do billing
         if ($doc === '') $doc = (string)$order->get_meta('_billing_cpf');

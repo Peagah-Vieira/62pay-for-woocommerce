@@ -2,6 +2,7 @@
 
 namespace WC62Pay\Gateway;
 
+use Sixtytwopay\Inputs\Customer\CustomerUpdateInput;
 use WC62Pay\Support\CustomerResolver;
 use WC62Pay\Support\InvoicePixExtractor;
 use WC62Pay\Support\InvoicePixPersister;
@@ -14,6 +15,7 @@ if (!defined('ABSPATH')) {
 
 class Pix extends Base
 {
+    private const META_DOCUMENT_NUMBER = '_wc_62pay_document_number';
 
     public function __construct()
     {
@@ -39,17 +41,49 @@ class Pix extends Base
             // 1) Garante/resolve o cliente no 62Pay
             $customer = CustomerResolver::ensure($order); // CustomerResponse
 
+            // Preferir o POST validado; senão, meta existente (recompra, order-pay etc.)
+            $doc = isset($_POST['wc_62pay_document_number']) ? wc_clean(wp_unslash($_POST['wc_62pay_document_number'])) : '';
+            $doc = $this->normalize_and_validate_document($doc);
+            if (empty($doc)) {
+                $doc = $order->get_meta(self::META_DOCUMENT_NUMBER);
+            } else {
+                $order->update_meta_data(self::META_DOCUMENT_NUMBER, $doc);
+                // Opcional: sincronizar para billing_cpf/cnpj caso seu tema/plugins usem
+                if (strlen($doc) === 11) {
+                    $order->update_meta_data('_billing_cpf', $doc);
+                } elseif (strlen($doc) === 14) {
+                    $order->update_meta_data('_billing_cnpj', $doc);
+                }
+                $order->save();
+            }
+
+            // 1.b) ATUALIZA O CLIENTE NO 62PAY COM O DOCUMENT_NUMBER
+            if (!empty($doc)) {
+                $type = (strlen($doc) === 14) ? 'LEGAL' : 'NATURAL';
+
+                $payload = CustomerUpdateInput::fromArray([
+                    'document_number' => $doc,   // só dígitos
+                    'type' => $type,  // LEGAL p/ CNPJ, NATURAL p/ CPF
+                ]);
+
+                // Chamada idempotente (se já estiver igual, a API apenas confirma)
+                \wc_62pay_client()->customer()->update($customer->id(), $payload);
+            }
+            // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
             // 2) Garante/resolve a invoice PIX
             $invoice = InvoiceResolver::ensure($order, $customer->id(), [
                 'payment_method' => 'PIX',
                 'due_date' => gmdate('Y-m-d'),
                 'description' => sprintf('Pedido #%s – %s', $order->get_order_number(), get_bloginfo('name')),
                 'immutable' => true,
+                'installments' => 1, // 1x à vista
                 'extra_tags' => ['checkout', 'pix'],
             ]); // InvoiceResponse
 
             // 3) Extrai o primeiro pagamento PIX (payable)
             $pix = InvoicePixExtractor::firstPixPaymentOrNull($invoice);
+
             if ($pix) {
                 // Persiste metas e opcionalmente grava o PNG do QR em uploads/
                 $persist = InvoicePixPersister::persist($order, $pix, true);
@@ -152,5 +186,88 @@ class Pix extends Base
         }
 
         echo '<p>' . esc_html__('Assim que o pagamento for confirmado, seu pedido será atualizado automaticamente.', 'wc-62pay') . '</p>';
+    }
+
+    /** Validação dos campos do método */
+    public function validate_fields(): bool
+    {
+        if ($this->id !== (isset($_POST['payment_method']) ? wc_clean(wp_unslash($_POST['payment_method'])) : '')) {
+            return true;
+        }
+
+        $raw = isset($_POST['wc_62pay_document_number']) ? wc_clean(wp_unslash($_POST['wc_62pay_document_number'])) : '';
+        $doc = $this->normalize_and_validate_document($raw);
+
+        if (empty($doc)) {
+            wc_add_notice(__('Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) válido.', 'wc-62pay'), 'error');
+            return false;
+        }
+
+        // Guarde no request para o process_payment() e também meta depois
+        $_POST['wc_62pay_document_number'] = $doc;
+        return true;
+    }
+
+    /** Renderiza campos adicionais do método (checkout clássico) */
+    public function payment_fields()
+    {
+        parent::payment_fields();
+
+        echo '<div class="form-row form-row-wide">';
+        woocommerce_form_field('wc_62pay_document_number', [
+            'type' => 'text',
+            'label' => __('CPF ou CNPJ do pagador', 'wc-62pay'),
+            'placeholder' => __('Somente números', 'wc-62pay'),
+            'required' => true,
+            'class' => ['form-row-wide'],
+        ], '');
+        echo '</div>';
+    }
+
+
+    /** Valida CPF numérico (11 dígitos) */
+    private function is_valid_cpf(string $cpf): bool
+    {
+        $cpf = preg_replace('/\D+/', '', $cpf ?? '');
+        if (strlen($cpf) !== 11 || preg_match('/^(\\d)\\1{10}$/', $cpf)) return false;
+
+        for ($t = 9; $t < 11; $t++) {
+            $d = 0;
+            for ($c = 0; $c < $t; $c++) {
+                $d += (int)$cpf[$c] * (($t + 1) - $c);
+            }
+            $d = ((10 * $d) % 11) % 10;
+            if ((int)$cpf[$t] !== $d) return false;
+        }
+        return true;
+    }
+
+    /** Valida CNPJ numérico (14 dígitos) */
+    private function is_valid_cnpj(string $cnpj): bool
+    {
+        $cnpj = preg_replace('/\D+/', '', $cnpj ?? '');
+        if (strlen($cnpj) !== 14 || preg_match('/^(\\d)\\1{13}$/', $cnpj)) return false;
+
+        $calc = function (array $base, array $peso) {
+            $s = 0;
+            foreach ($base as $i => $n) $s += (int)$n * $peso[$i];
+            $r = $s % 11;
+            return ($r < 2) ? 0 : 11 - $r;
+        };
+
+        $nums = array_map('intval', str_split($cnpj));
+        $dig1 = $calc(array_slice($nums, 0, 12), [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+        $dig2 = $calc(array_slice($nums, 0, 12) + [$dig1], [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+
+        return $nums[12] === $dig1 && $nums[13] === $dig2;
+    }
+
+    /** Normaliza e valida CPF/CNPJ; retorna somente dígitos ou string vazia */
+    private function normalize_and_validate_document(?string $raw): string
+    {
+        $doc = preg_replace('/\D+/', '', (string)$raw);
+        if (strlen($doc) === 11 && $this->is_valid_cpf($doc)) return $doc;
+        if (strlen($doc) === 14 && $this->is_valid_cnpj($doc)) return $doc;
+        return '';
     }
 }
