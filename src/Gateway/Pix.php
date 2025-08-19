@@ -2,11 +2,11 @@
 
 namespace WC62Pay\Gateway;
 
+use WC62Pay\Support\CustomerResolver;
+use WC62Pay\Support\InvoicePixExtractor;
+use WC62Pay\Support\InvoicePixPersister;
+use WC62Pay\Support\InvoiceResolver;
 use WC_Order;
-use Woo62Pay\Support\CustomerResolver;
-use Woo62Pay\Support\InvoicePixExtractor;
-use Woo62Pay\Support\InvoicePixPersister;
-use Woo62Pay\Support\InvoiceResolver;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -79,9 +79,25 @@ class Pix extends Base
             );
 
         } catch (\Throwable $e) {
-            wc_get_logger()->error('[62Pay] PIX - erro no process_payment: ' . $e->getMessage(), array('source' => 'wc-62pay'));
+            $logger = wc_get_logger();
+
+            $logger->error(
+                '[62Pay] PIX - erro no process_payment',
+                [
+                    'source' => 'wc-62pay',
+                    'order_id' => (int)$order_id,
+                    'message' => $e->getMessage(),
+                    'code' => (int)$e->getCode(),
+                    'exception' => get_class($e),
+                    'trace' => $e->getTraceAsString(), // útil em staging; remova em prod se preferir
+                ]
+            );
+
+            // opcional: nota no pedido
+            $order->add_order_note('62Pay: falha ao gerar PIX. ' . $e->getMessage());
+
             wc_add_notice(__('Falha ao gerar cobrança Pix. Tente novamente.', 'wc-62pay'), 'error');
-            return array('result' => 'failure');
+            return ['result' => 'failure'];
         }
     }
 

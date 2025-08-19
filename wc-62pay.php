@@ -13,6 +13,9 @@
  */
 
 use WC62Pay\API\Client;
+use WC62Pay\Gateway\BankSlip;
+use WC62Pay\Gateway\CreditCard;
+use WC62Pay\Gateway\Pix;
 use WC62Pay\WebhookHandler;
 
 if (!defined('ABSPATH')) {
@@ -42,9 +45,13 @@ if (file_exists($autoload)) {
 // ----------------------------------------------------------------------------
 // HPOS (High-Performance Order Storage) compatibility
 // ----------------------------------------------------------------------------
+// In your main plugin file
 add_action('before_woocommerce_init', function () {
-    if (class_exists(\Automattic\WooCommerce\Utilities\Features::class)) {
-        \Automattic\WooCommerce\Utilities\Features::declare_compatibility('custom_order_tables', WC_62PAY_FILE, true);
+    if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+            'custom_order_tables',
+            __FILE__,
+        );
     }
 });
 
@@ -52,6 +59,9 @@ add_action('before_woocommerce_init', function () {
 // Boot plugin
 // ----------------------------------------------------------------------------
 add_action('plugins_loaded', function () {
+    if (class_exists(\WC62Pay\Admin\SettingsPage::class)) {
+        \WC62Pay\Admin\SettingsPage::boot();
+    }
 
     // WooCommerce required
     if (!class_exists('WooCommerce')) {
@@ -66,9 +76,9 @@ add_action('plugins_loaded', function () {
 
     // Register payment gateways (PSR-4 classes under src/)
     add_filter('woocommerce_payment_gateways', function ($gateways) {
-        $gateways[] = \WC62Pay\Gateway\CreditCard::class;
-        $gateways[] = \WC62Pay\Gateway\Pix::class;
-        $gateways[] = \WC62Pay\Gateway\BankSlip::class;
+        $gateways[] = CreditCard::class;
+        $gateways[] = Pix::class;
+        $gateways[] = BankSlip::class;
         return $gateways;
     });
 

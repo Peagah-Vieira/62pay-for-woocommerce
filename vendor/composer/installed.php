@@ -3,7 +3,7 @@
         'name' => '62pay/woocommerce-gateway',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a414ff25dd68de50d03a9d8e7eab358a54d6bf67',
+        'reference' => '5081b2e091580927a694daa8294aedc969045fd7',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         '62pay/woocommerce-gateway' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a414ff25dd68de50d03a9d8e7eab358a54d6bf67',
+            'reference' => '5081b2e091580927a694daa8294aedc969045fd7',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

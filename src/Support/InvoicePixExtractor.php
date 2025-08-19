@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Woo62Pay\Support;
+namespace WC62Pay\Support;
 
 use Sixtytwopay\Responses\InvoiceResponse;
 

@@ -191,6 +191,19 @@ class ComposerStaticInit657ad70fa7d1c61d3fc0ab22ccce5461
         'Sixtytwopay\\Services\\InvoiceService' => __DIR__ . '/..' . '/62pay/php-sdk/src/Services/InvoiceService.php',
         'Sixtytwopay\\Services\\PaymentService' => __DIR__ . '/..' . '/62pay/php-sdk/src/Services/PaymentService.php',
         'Sixtytwopay\\Sixtytwopay' => __DIR__ . '/..' . '/62pay/php-sdk/src/Sixtytwopay.php',
+        'WC62Pay\\API\\Client' => __DIR__ . '/../..' . '/src/API/Client.php',
+        'WC62Pay\\Admin\\SettingsPage' => __DIR__ . '/../..' . '/src/Admin/SettingsPage.php',
+        'WC62Pay\\Gateway\\BankSlip' => __DIR__ . '/../..' . '/src/Gateway/BankSlip.php',
+        'WC62Pay\\Gateway\\CreditCard' => __DIR__ . '/../..' . '/src/Gateway/CreditCard.php',
+        'WC62Pay\\Gateway\\Pix' => __DIR__ . '/../..' . '/src/Gateway/Pix.php',
+        'WC62Pay\\Support\\CustomerCreateMapper' => __DIR__ . '/../..' . '/src/Support/CustomerCreateMapper.php',
+        'WC62Pay\\Support\\CustomerResolver' => __DIR__ . '/../..' . '/src/Support/CustomerResolver.php',
+        'WC62Pay\\Support\\InvoiceCreateMapper' => __DIR__ . '/../..' . '/src/Support/InvoiceCreateMapper.php',
+        'WC62Pay\\Support\\InvoicePixExtractor' => __DIR__ . '/../..' . '/src/Support/InvoicePixExtractor.php',
+        'WC62Pay\\Support\\InvoicePixPersister' => __DIR__ . '/../..' . '/src/Support/InvoicePixPersister.php',
+        'WC62Pay\\Support\\InvoiceResolver' => __DIR__ . '/../..' . '/src/Support/InvoiceResolver.php',
+        'WC62Pay\\Support\\MapHelpers' => __DIR__ . '/../..' . '/src/Support/MapHelpers.php',
+        'WC62Pay\\WebhookHandler' => __DIR__ . '/../..' . '/src/WebhookHandler.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

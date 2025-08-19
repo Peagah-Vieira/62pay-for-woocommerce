@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Woo62Pay\Support;
+namespace WC62Pay\Support;
 
 use Sixtytwopay\Inputs\Customer\CustomerCreateInput;
 use WC_Order;
@@ -11,9 +11,9 @@ final class CustomerCreateMapper
 {
     public static function map(WC_Order $order): CustomerCreateInput
     {
-        $doc = (string)get_post_meta($order->get_id(), '_billing_cpf', true);
+        $doc = (string)get_meta($order->get_id(), '_billing_cpf', true);
         if (!$doc) {
-            $doc = (string)get_post_meta($order->get_id(), '_billing_cnpj', true);
+            $doc = (string)get_meta($order->get_id(), '_billing_cnpj', true);
         }
         $doc = MapHelpers::onlyDigits($doc);
 
@@ -27,7 +27,7 @@ final class CustomerCreateMapper
         $addressNumber = MapHelpers::extractAddressNumber($addr1);
         $streetNoNumber = MapHelpers::stripAddressNumber($addr1);
 
-        $neighborhood = (string)get_post_meta($order->get_id(), '_billing_neighborhood', true);
+        $neighborhood = (string)get_meta($order->get_id(), '_billing_neighborhood', true);
         $neighborhood = $neighborhood !== '' ? $neighborhood : null;
 
         $fullName = $order->get_formatted_billing_full_name();
