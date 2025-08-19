@@ -12,6 +12,7 @@
  * Domain Path: /languages
  */
 
+use WC62Pay\API\Client;
 use WC62Pay\WebhookHandler;
 
 if (!defined('ABSPATH')) {
@@ -104,3 +105,20 @@ add_action('wp_enqueue_scripts', function () {
         ));
     }
 });
+
+/**
+ * Instância única do Client da camada API do plugin.
+ *
+ * @return Client
+ */
+function wc_62pay_client(): Client
+{
+    static $client = null;
+
+    if ($client instanceof Client) {
+        return $client;
+    }
+
+    $client = Client::fromOptions();
+    return $client;
+}
