@@ -33,3 +33,4 @@ Este plugin declara compatibilidade com **High-Performance Order Storage (HPOS)*
 A integração usa apenas a camada CRUD (`wc_get_order()`, `$order->update_status()`, etc.), evitando acesso direto a `wp_posts/wp_postmeta`.
 # 62pay-for-woocommerce
 # 62pay-for-woocommerce
+# 62pay-woocommerce-plugin
