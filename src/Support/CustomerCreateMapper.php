@@ -11,9 +11,10 @@ final class CustomerCreateMapper
 {
     public static function map(WC_Order $order): CustomerCreateInput
     {
-        $doc = (string)get_meta($order->get_id(), '_billing_cpf', true);
-        if (!$doc) {
-            $doc = (string)get_meta($order->get_id(), '_billing_cnpj', true);
+        // HPOS-safe: leia metas do pedido com $order->get_meta()
+        $doc = (string)$order->get_meta('_billing_cpf');
+        if ($doc === '') {
+            $doc = (string)$order->get_meta('_billing_cnpj');
         }
         $doc = MapHelpers::onlyDigits($doc);
 
@@ -27,7 +28,7 @@ final class CustomerCreateMapper
         $addressNumber = MapHelpers::extractAddressNumber($addr1);
         $streetNoNumber = MapHelpers::stripAddressNumber($addr1);
 
-        $neighborhood = (string)get_meta($order->get_id(), '_billing_neighborhood', true);
+        $neighborhood = (string)$order->get_meta('_billing_neighborhood');
         $neighborhood = $neighborhood !== '' ? $neighborhood : null;
 
         $fullName = $order->get_formatted_billing_full_name();
@@ -51,6 +52,10 @@ final class CustomerCreateMapper
             'tags' => ['woocommerce'],
         ];
 
+        // Use o método correto do seu SDK:
+        // - se a classe tiver ->fromArray($data), use fromArray
+        // - se tiver ::make($data) (como nos seus exemplos), mantenha:
         return CustomerCreateInput::make($data);
+        // return CustomerCreateInput::make($data);
     }
 }

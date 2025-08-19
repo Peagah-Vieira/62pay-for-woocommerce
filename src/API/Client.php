@@ -29,11 +29,20 @@ final class Client
      */
     public static function fromOptions(): self
     {
-        $apiKey = (string)get_option('woocommerce_62pay_api_key', '');
-        $liveMode = 'yes' === get_option('woocommerce_62pay_live_mode', 'no');
+        // novas opções globais da SettingsPage:
+        $apiKey = (string)get_option('wc_62pay_api_key', '');
+        $liveMode = 'yes' === get_option('wc_62pay_live_mode', 'no');
+
+        // (opcional) fallback p/ compatibilidade com antigas:
+        if ($apiKey === '') {
+            $apiKey = (string)get_option('woocommerce_62pay_api_key', '');
+        }
+        if (get_option('woocommerce_62pay_live_mode', null) !== null) {
+            $liveMode = 'yes' === get_option('woocommerce_62pay_live_mode', 'no');
+        }
 
         if ($apiKey === '') {
-            throw new \RuntimeException('62Pay: API key ausente (defina em WooCommerce > Configurações > Pagamentos).');
+            throw new \RuntimeException('62Pay: API key ausente (defina em WooCommerce > 62Pay).');
         }
 
         return new self($apiKey, $liveMode);

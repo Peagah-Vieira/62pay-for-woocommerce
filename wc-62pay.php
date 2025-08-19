@@ -88,14 +88,19 @@ add_action('plugins_loaded', function () {
     }
 }, 0);
 
+
 // ----------------------------------------------------------------------------
 // Settings shortcut on Plugins list
 // ----------------------------------------------------------------------------
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), function ($links) {
-    $settings_url = admin_url('admin.php?page=wc-settings&tab=checkout');
-    $links[] = '<a href="' . esc_url($settings_url) . '">' . esc_html__('Configurar', 'wc-62pay') . '</a>';
+    $url = admin_url('admin.php?page=' . \WC62Pay\Admin\SettingsPage::SLUG);
+    array_unshift(
+        $links,
+        '<a href="' . esc_url($url) . '">' . esc_html__('Configurar', 'wc-62pay') . '</a>'
+    );
     return $links;
 });
+
 
 // ----------------------------------------------------------------------------
 // Frontend assets (only on Checkout)
